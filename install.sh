@@ -30,10 +30,10 @@ __spartan_sigil_start() {
     local size lines columns
     size=$(stty size 2>/dev/null) || return
     read -r lines columns <<<"$size"
-    (( columns >= 42 && lines >= 16 )) || return
+    (( columns >= 81 && lines >= 36 )) || return
 
-    command spartan-sigil --prepare --rows 11 >/dev/tty 2>/dev/null || return
-    command spartan-sigil --render --rows 11 >/dev/tty 2>/dev/null &
+    command spartan-sigil --prepare --rows 33 >/dev/tty 2>/dev/null || return
+    command spartan-sigil --render --rows 33 >/dev/tty 2>/dev/null &
     __SPARTAN_SIGIL_PID=$!
     __SPARTAN_SIGIL_ARMED=1
 }

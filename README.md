@@ -1,4 +1,5 @@
 # Spartan Sigil
+![Alt Text](Spartan-Sigil/assets/thumbnail.png)
 
 A sculpted silver Spartan helmet above your first Bash prompt. Monochrome
 half-block shading preserves the master artwork’s recessed eyes, brushed metal,

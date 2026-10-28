@@ -21,7 +21,12 @@ if ! grep -Fqx "$begin" "$bashrc"; then
     if [[ ! -e "$backup" ]]; then
         cp -p "$bashrc" "$backup"
     fi
-    cat >> "$bashrc" <<'BLOCK'
+fi
+
+# Replace the managed block so reinstalling also upgrades existing integrations.
+block=$(mktemp)
+trap 'rm -f "$block"' EXIT
+cat > "$block" <<'BLOCK'
 
 # >>> Spartan Sigil >>>
 __spartan_sigil_start() {
@@ -30,7 +35,7 @@ __spartan_sigil_start() {
     local size lines columns
     size=$(stty size 2>/dev/null) || return
     read -r lines columns <<<"$size"
-    (( columns >= 81 && lines >= 36 )) || return
+    (( columns >= 66 && lines >= 35 )) || return
 
     command spartan-sigil --prepare --rows 33 >/dev/tty 2>/dev/null || return
     command spartan-sigil --render --rows 33 >/dev/tty 2>/dev/null &
@@ -75,6 +80,19 @@ if [[ ${__SPARTAN_SIGIL_ARMED:-0} == 1 ]]; then
 fi
 # <<< Spartan Sigil <<<
 BLOCK
-fi
+python3 - "$bashrc" "$block" "$begin" "$end" <<'PYTHON'
+from pathlib import Path
+import sys
+path, block = map(Path, sys.argv[1:3])
+begin, end = sys.argv[3:5]
+text = path.read_text()
+if begin in text:
+    start = text.index(begin)
+    finish = text.index(end, start) + len(end)
+    text = text[:start] + block.read_text().strip() + text[finish:]
+else:
+    text = text.rstrip() + "\n" + block.read_text()
+path.write_text(text)
+PYTHON
 
 echo "Installed Spartan Sigil: $target"
